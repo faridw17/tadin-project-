@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "datatables.net-responsive-bs4": "^2.2.9",
+    "highcharts": "^9.3.2",
+    "jquery-validation": "^1.19.3",
+    "jstree": "^3.3.12",
+    "startbootstrap-sb-admin-2": "^4.1.4",
+    "sweetalert2": "^11.3.3"
+  }
+}
