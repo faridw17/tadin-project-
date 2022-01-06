@@ -35,3 +35,5 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 # NPM
 #-------------------------
 node_modules/
+application/config/config.php
+application/config/database.php
