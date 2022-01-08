@@ -1,28 +1,23 @@
 <?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers;
-
-use App\Controllers\BaseController;
-use App\Models\AuthModel;
-
-class Auth extends BaseController
+class Auth extends CI_Controller
 {
-    private $AuthModel;
-    private $session_data;
-
     public function __construct()
     {
-        $this->session_data = session();
-        $this->AuthModel = new AuthModel();
+        parent::__construct();
+        $this->load->model('m_auth');
+        $this->load->library('session');
     }
 
     public function index()
     {
-        $userdata = $this->session_data->get('userdata');
+        $userdata = $this->session->userdata('userdata');
         if ($userdata && $userdata->is_login == 1) {
-            return redirect()->to(base_url() . '/admin/dashboard');
+            return redirect()->to(base_url() . 'dashboard');
         }
-        echo view('auth/login');
+
+        $this->load->view('auth/login');
     }
 
     public function login()
@@ -32,17 +27,16 @@ class Auth extends BaseController
             'message' => 'Gagal Login'
         ];
 
-        $username = $this->request->getVar('username');
-        $password = $this->request->getVar('password');
+        $username = $this->input->post('username');
+        $password = $this->input->post('password');
 
-        $userdata = $this->AuthModel->get_user_data($username);
+        $userdata = $this->m_auth->get_user_data($username);
 
         if ($userdata) {
-            if ($userdata->user_status == 1) {
+            if ($userdata->user_status == 't') {
                 if (password_verify($password, $userdata->password)) {
-                    $session = session();
 
-                    $setting = $this->AuthModel->get_setting();
+                    $setting = $this->m_auth->get_setting();
                     unset($userdata->password);
                     $userdata->is_login = 1;
 
@@ -51,12 +45,12 @@ class Auth extends BaseController
                         'userdata' => $userdata,
                     ];
 
-                    $session->set($sess_data);
+                    $this->session->set_userdata($sess_data);
 
                     $res = [
                         'status' => true,
                         'message' => 'Berhasil!',
-                        'url' => base_url() . '/admin/dashboard',
+                        'url' => base_url() . 'dashboard',
                     ];
                 } else {
                     $res = [
@@ -82,8 +76,7 @@ class Auth extends BaseController
 
     function logout()
     {
-        $session = session();
-        $session->destroy();
+        $this->session->sess_destroy();
         return redirect()->to(base_url() . '/auth');
     }
 }
