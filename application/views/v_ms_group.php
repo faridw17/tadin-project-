@@ -42,8 +42,8 @@
               <label class="col-md-3 label-control">Status</label>
               <div class="col-md-3">
                 <select class="form-control" id="group_status" name="group_status">
-                  <option value="1">Aktif</option>
-                  <option value="0">Non Aktif</option>
+                  <option value="t">Aktif</option>
+                  <option value="f">Non Aktif</option>
                 </select>
               </div>
             </div>
@@ -107,16 +107,6 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="group_id_akses">
-        <div class="row">
-          <label class="label-control col-md-3">Modul</label>
-          <div class="col-md-5">
-            <select name="modul_id" id="modul_id" class="form-control">
-              <?php foreach ($modul as $v) : ?>
-                <option value="<?= $v->modul_id ?>"><?= $v->modul_nama ?></option>
-              <?php endforeach ?>
-            </select>
-          </div>
-        </div>
         <div id="listMenu"></div>
       </div>
       <div class="modal-footer">
@@ -140,7 +130,7 @@
         serverSide: true,
         // scrollX: true,
         ajax: {
-          url: '<?= base_url() ?>/admin/msgroup/get_data',
+          url: '<?= base_url() ?>ms_group/get_data',
           type: 'POST',
         },
         columnDefs: [{
@@ -194,7 +184,7 @@
           let data = formVendor.serialize()
 
           $.ajax({
-            url: '<?= base_url() ?>/admin/msgroup/save',
+            url: '<?= base_url() ?>ms_group/save',
             data: data,
             type: 'post',
             dataType: 'json',
@@ -277,7 +267,7 @@
     }).then(function(result) {
       if (result.value) {
         $.ajax({
-          url: '<?= base_url() ?>/admin/msgroup/hapus',
+          url: '<?= base_url() ?>ms_group/hapus',
           type: 'post',
           dataType: 'json',
           data: {
@@ -311,7 +301,6 @@
     $("#modalTitle").text(title);
     $("#modalAkses").modal('show');
     $("#group_id_akses").val(id);
-    $("#modul_id").trigger('change')
   }
 
   function get_menu() {
@@ -323,7 +312,7 @@
         "check_callback": true,
         'data': {
           'url': function(node) {
-            return '<?= base_url() ?>/admin/msgroup/get_menu'
+            return '<?= base_url() ?>ms_group/get_menu'
           },
           "dataType": "json",
           cache: false,
@@ -331,7 +320,6 @@
             return {
               'menu_id': node.id != "#" ? node.id : 0,
               'group_id': $("#group_id_akses").val(),
-              'modul_id': $("#modul_id").val(),
             };
           }
         }
@@ -343,7 +331,7 @@
   }
 
   function saveAkses() {
-    let data = "group_id=" + $("#group_id_akses").val() + "&modul_id=" + $("#modul_id").val();
+    let data = "group_id=" + $("#group_id_akses").val();
 
     const listMenu = $("#listMenu")
 
@@ -360,7 +348,7 @@
     }
 
     $.ajax({
-      url: '<?= base_url() ?>/admin/msgroup/save_akses',
+      url: '<?= base_url() ?>ms_group/save_akses',
       type: 'post',
       dataType: 'json',
       data: data,
@@ -401,10 +389,6 @@
       resetForm()
       $("#rowForm").slideDown(500)
       $("#rowList").slideUp(500)
-    })
-
-    $("#modul_id").change(function() {
-      $("#listMenu").jstree(true).refresh(false, true);
     })
   });
 </script>

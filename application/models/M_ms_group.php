@@ -1,57 +1,20 @@
 <?php
 
-class MsGroupModel extends CI_Model
+class M_ms_group extends CI_Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'ms_group';
-    protected $primaryKey       = 'group_id';
-    protected $useAutoIncrement = true;
-    protected $insertID         = 0;
-    protected $returnType       = 'object';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        'group_id',
-        'group_kode',
-        'group_nama',
-        'group_status',
-        'group_ket',
-    ];
-
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
-
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    private $table  = 'admin.ms_group';
+    private $id     = 'group_id';
 
     public function get_total($where)
     {
         $sql = "SELECT
                     count(*) as total
                 from
-                    ms_group mg
+                    admin.ms_group mg
                 where
                     0 = 0
                     $where";
-        return $this->db->query($sql)->getRow()->total;
+        return $this->db->query($sql)->row()->total;
     }
 
     public function get_data($limit, $where, $order, $columns)
@@ -60,37 +23,21 @@ class MsGroupModel extends CI_Model
         $sql = "SELECT
                     $slc
                 from
-                    ms_group mg
+                    admin.ms_group mg
                 where
                     0 = 0
                     $where
                 $order $limit";
-        return $this->db->query($sql)->getResult();
+        return $this->db->query($sql)->result();
     }
 
-    public function get_modul()
+    public function get_menu($group_id = 1)
     {
-        $sql = "SELECT 
-                    *
-                from
-                    ms_modul
-                where
-                    modul_status = 1
-                order by
-                    modul_kode";
-
-        $res = $this->db->query($sql)->getResult();
-
-        return $res;
-    }
-
-    public function get_menu($modul_id, $group_id = 1)
-    {
-        $where = " AND mm.modul_id = $modul_id and mm.menu_id != 4 ";
+        $where = " AND mm.menu_id != 4 ";
 
         $sql = "SELECT
                     mm.menu_id ,
-                    concat(mm.menu_nama, case when mm.menu_status = 0 then ' (NON-AKTIF)' else '' end) as menu_nama,
+                    concat(mm.menu_nama, case when mm.menu_status = false then ' (NON-AKTIF)' else '' end) as menu_nama,
                     mm.menu_parent_id,
                     case
                         when gm.group_id is null then 0
@@ -98,8 +45,8 @@ class MsGroupModel extends CI_Model
                     end as is_selected,
                     coalesce(child.total, 0) as total_child
                 from
-                    ms_menu mm
-                left join group_menu gm on
+                    admin.ms_menu mm
+                left join admin.group_menu gm on
                     gm.menu_id = mm.menu_id
                     and gm.group_id = $group_id
                 left join (
@@ -107,7 +54,7 @@ class MsGroupModel extends CI_Model
                         count(*) as total,
                         menu_parent_id
                     from
-                        ms_menu
+                        admin.ms_menu
                     group by
                         menu_parent_id 
                 ) as child on
@@ -118,17 +65,14 @@ class MsGroupModel extends CI_Model
                 order by
                     mm.menu_kode";
 
-        return $this->db->query($sql)->getResult();
+        return $this->db->query($sql)->result();
     }
 
-    public function delete_akses($modul_id, $group_id)
+    public function delete_akses($group_id)
     {
-        $db = \Config\Database::connect();
-        $group_menu = $db->table('group_menu');
-        $group_menu->where('menu_id !=', 4);
-        $group_menu->where('modul_id', $modul_id);
-        $group_menu->where('group_id', $group_id);
-        $result = $group_menu->delete();
+        $this->db->where('menu_id !=', 4);
+        $this->db->where('group_id', $group_id);
+        $result = $this->db->delete('admin.group_menu');
         if ($result) {
             $res = [
                 'status' => true,
@@ -146,9 +90,7 @@ class MsGroupModel extends CI_Model
 
     public function save_akses($data)
     {
-        $db = \Config\Database::connect();
-        $group_menu = $db->table('group_menu');
-        $result = $group_menu->insertBatch($data);
+        $result = $this->db->insert_batch('admin.group_menu', $data);
         if ($result) {
             $res = [
                 'status' => true,
@@ -161,6 +103,41 @@ class MsGroupModel extends CI_Model
             ];
         }
 
+        return $res;
+    }
+
+    public function insert($data)
+    {
+        $this->db->insert($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function update($id, $data)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->update($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function delete($id)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->delete($this->table);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
         return $res;
     }
 }

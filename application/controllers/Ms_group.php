@@ -1,25 +1,18 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\MsGroupModel;
-
-class Msgroup extends AdminController
+class Ms_group extends MY_Controller
 {
-    protected $MsGroupModel;
     public function __construct()
     {
         parent::__construct();
-        $this->MsGroupModel = new MsGroupModel();
+        $this->load->model('m_ms_group');
     }
 
     public function index()
     {
         $data['title'] = "Master Group";
-        $data['modul'] = $this->MsGroupModel->get_modul();
-        return $this->admin_theme('admin/v_ms_group', $data);
+        return $this->my_theme('v_ms_group', $data);
     }
 
     public function get_data()
@@ -31,35 +24,37 @@ class Msgroup extends AdminController
             'group_status',
             'group_ket',
         );
-        $search = $this->request->getVar('search')['value'];
+        $search = $this->input->post('search')['value'];
         $where = "";
         if (isset($search) && $search != "") {
             $where = "AND (";
             for ($i = 0; $i < count($columns); $i++) {
-                $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
+                if ($i == 1 || $i == 2) {
+                    $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
+                }
             }
             $where = substr_replace($where, "", -3);
             $where .= ')';
         }
-        $iTotalRecords = intval($this->MsGroupModel->get_total($where));
-        $length = intval($this->request->getVar('length'));
+        $iTotalRecords = intval($this->m_ms_group->get_total($where));
+        $length = intval($this->input->post('length'));
         $length = $length < 0 ? $iTotalRecords : $length;
-        $start  = intval($this->request->getVar('start'));
+        $start  = intval($this->input->post('start'));
         $draw      = intval($_REQUEST['draw']);
-        $sortCol0 = $this->request->getVar('order')[0];
+        $sortCol0 = $this->input->post('order')[0];
         $records = array();
         $records["data"] = array();
         $order = "";
         if (isset($start) && $length != '-1') {
-            $limit = "limit " . intval($start) . ", " . intval($length);
+            $limit = "limit " .  intval($length) . " offset " . intval($start);
         }
 
         if (isset($sortCol0)) {
             $order = "ORDER BY  ";
-            for ($i = 0; $i < count($this->request->getVar('order')); $i++) {
-                if ($this->request->getVar('columns')[intval($this->request->getVar('order')[$i]['column'])]['orderable'] == "true") {
-                    $order .= "" . $columns[intval($this->request->getVar('order')[$i]['column'])] . " " .
-                        ($this->request->getVar('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
+            for ($i = 0; $i < count($this->input->post('order')); $i++) {
+                if ($this->input->post('columns')[intval($this->input->post('order')[$i]['column'])]['orderable'] == "true") {
+                    $order .= "" . $columns[intval($this->input->post('order')[$i]['column'])] . " " .
+                        ($this->input->post('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
                 }
             }
 
@@ -68,11 +63,11 @@ class Msgroup extends AdminController
                 $order = "";
             }
         }
-        $data = $this->MsGroupModel->get_data($limit, $where, $order, $columns);
+        $data = $this->m_ms_group->get_data($limit, $where, $order, $columns);
         $no   = 1 + $start;
         foreach ($data as $row) {
             $isi = rawurlencode(json_encode($row));
-            if ($row->group_status == 1) {
+            if ($row->group_status == 't') {
                 $status = '<span class="badge badge-success">Aktif</span>';
             } else {
                 $status = '<span class="badge badge-danger">Non Aktif</span>';
@@ -120,23 +115,23 @@ class Msgroup extends AdminController
 
     public function save()
     {
-        $act = $this->request->getVar('act');
+        $act = $this->input->post('act');
 
         $data = [
-            'group_kode' => addslashes($this->request->getVar('group_kode')),
-            'group_nama' => addslashes($this->request->getVar('group_nama')),
-            'group_ket' => addslashes($this->request->getVar('group_ket')),
-            'group_status' => $this->request->getVar('group_status'),
+            'group_kode' => addslashes($this->input->post('group_kode')),
+            'group_nama' => addslashes($this->input->post('group_nama')),
+            'group_ket' => addslashes($this->input->post('group_ket')),
+            'group_status' => $this->input->post('group_status'),
         ];
 
         if ($act == 'add') {
-            $res = $this->MsGroupModel->insert($data);
+            $res = $this->m_ms_group->insert($data);
         } else {
-            $id = $this->request->getVar('group_id');
-            $res = $this->MsGroupModel->update($id, $data);
+            $id = $this->input->post('group_id');
+            $res = $this->m_ms_group->update($id, $data);
         }
 
-        if ($res > 0) {
+        if ($res) {
             $response = [
                 'status' => true,
                 'message' => $act == 'add' ? 'Berhasil menambahkan data!' : 'Berhasil memperbarui data!',
@@ -155,8 +150,8 @@ class Msgroup extends AdminController
 
     public function hapus()
     {
-        $id = $this->request->getVar('id');
-        $res = $this->MsGroupModel->delete($id);
+        $id = $this->input->post('id');
+        $res = $this->m_ms_group->delete($id);
 
         $response = [
             'status' => false,
@@ -175,12 +170,11 @@ class Msgroup extends AdminController
 
     public function get_menu()
     {
-        $group_id = $this->request->getVar('group_id');
-        $modul_id = $this->request->getVar('modul_id');
+        $group_id = $this->input->post('group_id');
 
         $group_id = !empty($group_id) ? $group_id : 0;
 
-        $q = $this->MsGroupModel->get_menu($modul_id, $group_id);
+        $q = $this->m_ms_group->get_menu($group_id);
         $res = [];
 
         if (count($q) > 0) {
@@ -206,25 +200,22 @@ class Msgroup extends AdminController
 
     public function save_akses()
     {
-
-        $modul_id = $this->request->getVar('modul_id');
-        $group_id = $this->request->getVar('group_id');
-        $menu_id = !empty($this->request->getVar('menu_id')) ? $this->request->getVar('menu_id') : [];
+        $group_id = $this->input->post('group_id');
+        $menu_id = !empty($this->input->post('menu_id')) ? $this->input->post('menu_id') : [];
         $data = [];
 
         if (count($menu_id) > 0) {
             foreach ($menu_id as $v) {
                 $data[] = [
                     'group_id' => $group_id,
-                    'modul_id' => $modul_id,
                     'menu_id' => $v
                 ];
             }
         }
 
-        $res = $this->MsGroupModel->delete_akses($modul_id, $group_id);
+        $res = $this->m_ms_group->delete_akses($group_id);
         if ($res['status'] && count($data) > 0) {
-            $res = $this->MsGroupModel->save_akses($data);
+            $res = $this->m_ms_group->save_akses($data);
         }
 
         echo json_encode($res);
