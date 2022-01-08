@@ -1,8 +1,8 @@
-<script src="<?= base_url() ?>/node_modules/highcharts/highcharts.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/series-label.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/exporting.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/export-data.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/accessibility.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/highcharts.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/series-label.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/exporting.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/export-data.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/accessibility.js"></script>
 <h1 class="mt-4"><?= $title ?></h1>
 <div class="row">
   <div class="col-md-12">
@@ -81,7 +81,7 @@
 
   function getDashboardMesin() {
     $.ajax({
-      url: '<?= base_url() ?>/admin/dashboard/get_mesin',
+      url: '<?= base_url() ?>dashboard/get_mesin',
       dataType: 'json',
       success: res => {
         $("#listMesin").html('')
@@ -129,7 +129,7 @@
 
   function getGrafikData() {
     $.ajax({
-      url: '<?= base_url() ?>/admin/dashboard/get_grafik',
+      url: '<?= base_url() ?>dashboard/get_grafik',
       dataType: 'json',
       success: res => {
         chartLine.xAxis[0].setCategories(res.xaxis);

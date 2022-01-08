@@ -1,7 +1,7 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
   <!-- Sidebar - Brand -->
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url() ?>/admin/dashboard">
+  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url() ?>dashboard">
     <div class="sidebar-brand-icon rotate-n-15">
       <i class="<?= $judul_ikon ?>"></i>
     </div>
@@ -21,3 +21,13 @@
     <button class="rounded-circle border-0" id="sidebarToggle"></button>
   </div>
 </ul>
+
+<!-- End of Sidebar -->
+
+<!-- Content Wrapper -->
+<div id="content-wrapper" class="d-flex flex-column">
+
+  <!-- Main Content -->
+  <div id="content">
+
+    <!-- Topbar -->

@@ -1,13 +1,8 @@
 <?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\DashboardModel;
-
-class Dashboard extends AdminController
+class Dashboard extends MY_Controller
 {
-    private $DashboardModel;
     private $nama_pt;
 
     public function __construct()
@@ -18,25 +13,25 @@ class Dashboard extends AdminController
                 $this->nama_pt = $v->setting_value;
             }
         }
-        $this->DashboardModel = new DashboardModel();
+        $this->load->model('m_dashboard');
     }
 
     public function index()
     {
         $data['title'] = "Dashboard";
         $data['nama_pt'] = $this->nama_pt;
-        return $this->admin_theme('admin/v_dashboard', $data);
+        return $this->my_theme('v_dashboard', $data);
     }
 
     public function get_mesin()
     {
-        $res = $this->DashboardModel->get_dashboard_mesin();
+        $res = $this->m_dashboard->get_dashboard_mesin();
         echo json_encode($res);
     }
 
     public function get_grafik()
     {
-        $limit = $this->request->getVar('limit');
+        $limit = $this->input->post('limit');
 
         $limit = !empty($limit) ? $limit : 10;
 
@@ -64,7 +59,7 @@ class Dashboard extends AdminController
 
         $res['xaxis'] = $label_x;
 
-        $listDevice = $this->DashboardModel->get_dashboard_mesin();
+        $listDevice = $this->m_dashboard->get_dashboard_mesin();
 
         $res['series'] = [];
 
@@ -74,7 +69,7 @@ class Dashboard extends AdminController
                 'data' => $sampelBanyakData,
             ];
 
-            $get_data = $this->DashboardModel->get_line_data($value->device_id, $tgl_pertama);
+            $get_data = $this->m_dashboard->get_line_data($value->device_id, $tgl_pertama);
 
             foreach ($get_data as $k => $v) {
                 $res['series'][$key]['data'][$sampelBanyakTanggal[$v->tanggal]] = floatval($v->jam);

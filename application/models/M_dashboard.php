@@ -1,23 +1,19 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class DashboardModel extends Model
+class M_dashboard extends CI_Model
 {
     public function get_dashboard_mesin()
     {
         $sql = "SELECT
                     *
                 from
-                    ms_device md
+                    mesin.ms_device md
                 where
-                    md.device_status = 1
+                    md.device_status = true
                 order by
                     device_kode";
 
-        $res = $this->db->query($sql)->getResult();
+        $res = $this->db->query($sql)->result();
         return $res;
     }
 
@@ -30,14 +26,14 @@ class DashboardModel extends Model
                     select
                         distinct dm.tanggal
                     from
-                        data_mesin dm
+                        mesin.data_mesin dm
                     order by
                         dm.tanggal desc
                     limit $limit) label
                 order by
                     tanggal asc";
 
-        $result = $this->db->query($sql)->getResult();
+        $result = $this->db->query($sql)->result();
 
         $res = [];
 
@@ -58,7 +54,7 @@ class DashboardModel extends Model
                         date_format(dm.tanggal, '%d-%m-%Y') tanggal,
                         sum(dm.jam) jam
                     from
-                        data_mesin dm
+                        mesin.data_mesin dm
                     where
                         dm.device_id = $device_id
                         and dm.tanggal >= '$tgl_pertama'
@@ -68,7 +64,7 @@ class DashboardModel extends Model
                         dm.tanggal desc) label
                 order by
                     label.tanggal asc";
-        $res = $this->db->query($sql)->getResult();
+        $res = $this->db->query($sql)->result();
         return $res;
     }
 
