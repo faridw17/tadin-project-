@@ -1,73 +1,29 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class MsUserModel extends Model
+class M_ms_user extends CI_Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'ms_user';
-    protected $primaryKey       = 'user_id';
-    protected $useAutoIncrement = true;
-    protected $insertID         = 0;
-    protected $returnType       = 'object';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        "user_id",
-        "user_name",
-        "user_status",
-        "is_superuser",
-        "password",
-        "user_fullname",
-        "user_email",
-    ];
-
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
-
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
-
+    private $table = "admin.ms_user";
+    private $id = "user_id";
 
     public function get_total($where)
     {
         $sql = "SELECT
                     count(*) as total
                 from
-                    ms_user mu
+                    admin.ms_user mu
                 left join (
                     select
                         user_id,
                         count(*) as total
                     from
-                        group_user
+                        admin.group_user
                     group by
                         user_id) gu on
                     gu.user_id = mu.user_id
                 where
                     0 = 0
                     $where";
-        return $this->db->query($sql)->getRow()->total;
+        return $this->db->query($sql)->row()->total;
     }
 
     public function get_data($limit, $where, $order, $columns)
@@ -76,13 +32,13 @@ class MsUserModel extends Model
         $sql = "SELECT
                     $slc
                 from
-                    ms_user mu
+                    admin.ms_user mu
                 left join (
                     select
                         user_id,
                         count(*) as total
                     from
-                        group_user
+                        admin.group_user
                     group by
                         user_id) gu on
                     gu.user_id = mu.user_id
@@ -90,7 +46,7 @@ class MsUserModel extends Model
                     0 = 0
                     $where
                 $order $limit";
-        return $this->db->query($sql)->getResult();
+        return $this->db->query($sql)->result();
     }
 
     public function get_akses($id)
@@ -103,24 +59,22 @@ class MsUserModel extends Model
                         else 1
                     end as akses
                 from
-                    ms_group mg
-                left join group_user gu on
+                    admin.ms_group mg
+                left join admin.group_user gu on
                     gu.group_id = mg.group_id
                     and gu.user_id = $id
                 where
-                    mg.group_status = 1
+                    mg.group_status = true
                     and mg.group_id != 1
                 order by
                     mg.group_nama";
-        $res = $this->db->query($sql)->getResult();
+        $res = $this->db->query($sql)->result();
         return $res;
     }
 
     public function delete_akses($user_id)
     {
-        $db = \Config\Database::connect();
-        $group_user = $db->table('group_user');
-        $result = $group_user->delete(['user_id' => $user_id]);
+        $result = $this->db->delete('admin.group_user', [$this->id => $user_id]);
         if ($result) {
             $res = [
                 'status' => true,
@@ -138,9 +92,7 @@ class MsUserModel extends Model
 
     public function save_akses($data)
     {
-        $db = \Config\Database::connect();
-        $group_user = $db->table('group_user');
-        $result = $group_user->insertBatch($data);
+        $result = $this->db->insert_batch('admin.group_user', $data);
         if ($result) {
             $res = [
                 'status' => true,
@@ -153,6 +105,41 @@ class MsUserModel extends Model
             ];
         }
 
+        return $res;
+    }
+
+    public function insert($data)
+    {
+        $this->db->insert($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function update($id, $data)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->update($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function delete($id)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->delete($this->table);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
         return $res;
     }
 }

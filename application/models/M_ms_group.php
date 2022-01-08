@@ -1,10 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class MsGroupModel extends Model
+class MsGroupModel extends CI_Model
 {
     protected $DBGroup          = 'default';
     protected $table            = 'ms_group';

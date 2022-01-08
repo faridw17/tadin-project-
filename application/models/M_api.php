@@ -1,10 +1,6 @@
 <?php
 
-namespace App\Models;
-
-use CodeIgniter\Model;
-
-class APIModel extends Model
+class APIModel extends CI_Model
 {
     public function insert_mesin_data($data)
     {

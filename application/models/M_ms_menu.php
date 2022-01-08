@@ -1,10 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class MsMenuModel extends Model
+class MsMenuModel extends CI_Model
 {
     protected $DBGroup          = 'default';
     protected $table            = 'ms_menu';

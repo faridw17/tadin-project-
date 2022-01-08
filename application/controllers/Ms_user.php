@@ -1,23 +1,18 @@
 <?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\MsUserModel;
-
-class Msuser extends AdminController
+class Ms_user extends MY_Controller
 {
-    protected $MsUserModel;
     public function __construct()
     {
         parent::__construct();
-        $this->MsUserModel = new MsUserModel();
+        $this->load->model('m_ms_user');
     }
 
     public function index()
     {
         $data['title'] = "Master User";
-        return $this->admin_theme('admin/v_ms_user', $data);
+        return $this->my_theme('v_ms_user', $data);
     }
 
     public function get_data()
@@ -34,11 +29,10 @@ class Msuser extends AdminController
         $colSearch = [
             'user_fullname',
             'user_name',
-            'user_status',
             'user_email',
         ];
 
-        $search = $this->request->getVar('search')['value'];
+        $search = $this->input->post('search')['value'];
         $where = "";
         if (isset($search) && $search != "") {
             $where = "AND (";
@@ -48,25 +42,25 @@ class Msuser extends AdminController
             $where = substr_replace($where, "", -3);
             $where .= ')';
         }
-        $iTotalRecords = intval($this->MsUserModel->get_total($where));
-        $length = intval($this->request->getVar('length'));
+        $iTotalRecords = intval($this->m_ms_user->get_total($where));
+        $length = intval($this->input->post('length'));
         $length = $length < 0 ? $iTotalRecords : $length;
-        $start  = intval($this->request->getVar('start'));
+        $start  = intval($this->input->post('start'));
         $draw      = intval($_REQUEST['draw']);
-        $sortCol0 = $this->request->getVar('order')[0];
+        $sortCol0 = $this->input->post('order')[0];
         $records = array();
         $records["data"] = array();
         $order = "";
         if (isset($start) && $length != '-1') {
-            $limit = "limit " . intval($start) . ", " . intval($length);
+            $limit = "limit " . intval($length) . " offset " . intval($start);
         }
 
         if (isset($sortCol0)) {
             $order = "ORDER BY  ";
-            for ($i = 0; $i < count($this->request->getVar('order')); $i++) {
-                if ($this->request->getVar('columns')[intval($this->request->getVar('order')[$i]['column'])]['orderable'] == "true") {
-                    $order .= "" . $columns[intval($this->request->getVar('order')[$i]['column'])] . " " .
-                        ($this->request->getVar('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
+            for ($i = 0; $i < count($this->input->post('order')); $i++) {
+                if ($this->input->post('columns')[intval($this->input->post('order')[$i]['column'])]['orderable'] == "true") {
+                    $order .= "" . $columns[intval($this->input->post('order')[$i]['column'])] . " " .
+                        ($this->input->post('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
                 }
             }
 
@@ -75,12 +69,12 @@ class Msuser extends AdminController
                 $order = "";
             }
         }
-        $data = $this->MsUserModel->get_data($limit, $where, $order, $columns);
+        $data = $this->m_ms_user->get_data($limit, $where, $order, $columns);
         $no   = 1 + $start;
         foreach ($data as $row) {
             $action = "";
             $isi = rawurlencode(json_encode($row));
-            if ($row->user_status == 1) {
+            if ($row->user_status == 't') {
                 $status = '<span class="badge badge-success">Aktif</span>';
             } else {
                 $status = '<span class="badge badge-danger">Non Aktif</span>';
@@ -129,27 +123,27 @@ class Msuser extends AdminController
 
     public function save()
     {
-        $act = $this->request->getVar('act');
-        $password = password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
+        $act = $this->input->post('act');
+        $password = password_hash($this->input->post('password'), PASSWORD_DEFAULT);
 
         $data = [
-            'user_name' => addslashes($this->request->getVar('user_name')),
-            'user_fullname' => addslashes($this->request->getVar('user_fullname')),
-            'user_email' => addslashes($this->request->getVar('user_email')),
-            'user_status' => $this->request->getVar('user_status'),
+            'user_name' => addslashes($this->input->post('user_name')),
+            'user_fullname' => addslashes($this->input->post('user_fullname')),
+            'user_email' => addslashes($this->input->post('user_email')),
+            'user_status' => $this->input->post('user_status'),
         ];
 
         if ($act == 'add') {
             $data['password'] = $password;
-            $res = $this->MsUserModel->insert($data);
+            $res = $this->m_ms_user->insert($data);
         } else {
-            if ($this->request->getVar('is_ganti') == 1) $data['password'] = $password;
+            if ($this->input->post('is_ganti') == 1) $data['password'] = $password;
 
-            $id = $this->request->getVar('user_id');
-            $res = $this->MsUserModel->update($id, $data);
+            $id = $this->input->post('user_id');
+            $res = $this->m_ms_user->update($id, $data);
         }
 
-        if ($res > 0) {
+        if ($res) {
             $response = [
                 'status' => true,
                 'message' => $act == 'add' ? 'Berhasil menambahkan data!' : 'Berhasil memperbarui data!',
@@ -168,8 +162,8 @@ class Msuser extends AdminController
 
     public function hapus()
     {
-        $id = $this->request->getVar('id');
-        $res = $this->MsUserModel->delete($id);
+        $id = $this->input->post('id');
+        $res = $this->m_ms_user->delete($id);
 
         $response = [
             'status' => false,
@@ -188,15 +182,15 @@ class Msuser extends AdminController
 
     public function get_akses()
     {
-        $id = $this->request->getVar('id');
-        $res = $this->MsUserModel->get_akses($id);
+        $id = $this->input->post('id');
+        $res = $this->m_ms_user->get_akses($id);
         echo json_encode($res);
     }
 
     public function save_akses()
     {
-        $user_id = $this->request->getVar('user_id');
-        $group_id = !empty($this->request->getVar('group_id')) ? $this->request->getVar('group_id') : [];
+        $user_id = $this->input->post('user_id');
+        $group_id = !empty($this->input->post('group_id')) ? $this->input->post('group_id') : [];
         $data = [];
 
         if (count($group_id) > 0) {
@@ -208,9 +202,9 @@ class Msuser extends AdminController
             }
         }
 
-        $res = $this->MsUserModel->delete_akses($user_id);
+        $res = $this->m_ms_user->delete_akses($user_id);
         if ($res['status'] && count($data) > 0) {
-            $res = $this->MsUserModel->save_akses($data);
+            $res = $this->m_ms_user->save_akses($data);
         }
 
         echo json_encode($res);

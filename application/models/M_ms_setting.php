@@ -1,10 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class MsSettingModel extends Model
+class MsSettingModel extends CI_Model
 {
     protected $DBGroup          = 'default';
     protected $table            = 'setting';

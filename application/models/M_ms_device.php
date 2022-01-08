@@ -1,10 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class MsDeviceModel extends Model
+class MsDeviceModel extends CI_Model
 {
     protected $DBGroup          = 'default';
     protected $table            = 'ms_device';

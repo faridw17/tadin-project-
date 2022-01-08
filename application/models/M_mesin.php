@@ -1,10 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
-
-use CodeIgniter\Model;
-
-class MesinModel extends Model
+class MesinModel extends CI_Model
 {
     public function get_data_device($device_id)
     {

@@ -59,8 +59,8 @@
             <label class="col-md-3 label-control">Status</label>
             <div class="col-md-3">
               <select class="form-control" id="user_status" name="user_status">
-                <option value="1">Aktif</option>
-                <option value="0">Non Aktif</option>
+                <option value="t">Aktif</option>
+                <option value="f">Non Aktif</option>
               </select>
             </div>
           </div>
@@ -144,7 +144,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-          url: '<?= base_url() ?>/admin/msuser/get_data',
+          url: '<?= base_url() ?>ms_user/get_data',
           type: 'POST',
           // data: {
           //   // parameters for custom backend script demo
@@ -225,7 +225,7 @@
           }
 
           $.ajax({
-            url: '<?= base_url() ?>/admin/msuser/save',
+            url: '<?= base_url() ?>ms_user/save',
             data: data,
             type: 'post',
             dataType: 'json',
@@ -314,7 +314,7 @@
     }).then(function(result) {
       if (result.value) {
         $.ajax({
-          url: '<?= base_url() ?>/admin/msuser/hapus',
+          url: '<?= base_url() ?>ms_user/hapus',
           type: 'post',
           dataType: 'json',
           data: {
@@ -350,7 +350,7 @@
     $("#user_id_akses").val(id)
     $("#listGroup label").remove()
     $.ajax({
-      url: '<?= base_url() ?>/admin/msuser/get_akses',
+      url: '<?= base_url() ?>ms_user/get_akses',
       data: {
         id: id
       },
@@ -389,7 +389,7 @@
     }
 
     $.ajax({
-      url: '<?= base_url() ?>/admin/msuser/save_akses',
+      url: '<?= base_url() ?>ms_user/save_akses',
       type: 'post',
       dataType: 'json',
       data: data,
