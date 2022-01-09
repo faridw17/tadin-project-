@@ -170,7 +170,7 @@ class Ms_group extends MY_Controller
 
     public function get_menu()
     {
-        $group_id = $this->input->post('group_id');
+        $group_id = $this->input->get('group_id');
 
         $group_id = !empty($group_id) ? $group_id : 0;
 

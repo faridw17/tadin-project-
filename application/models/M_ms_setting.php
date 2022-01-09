@@ -31,33 +31,10 @@ class M_ms_setting extends CI_Model
         return $this->db->query($sql)->result();
     }
 
-    public function insert($data)
-    {
-        $this->db->insert($this->table, $data);
-        if ($this->db->affected_rows() > -1) {
-            $res = true;
-        } else {
-            $res =  false;
-        }
-        return $res;
-    }
-
     public function update($id, $data)
     {
         $this->db->where($this->id, $id);
         $this->db->update($this->table, $data);
-        if ($this->db->affected_rows() > -1) {
-            $res = true;
-        } else {
-            $res =  false;
-        }
-        return $res;
-    }
-
-    public function delete($id)
-    {
-        $this->db->where($this->id, $id);
-        $this->db->delete($this->table);
         if ($this->db->affected_rows() > -1) {
             $res = true;
         } else {

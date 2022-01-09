@@ -301,6 +301,7 @@
     $("#modalTitle").text(title);
     $("#modalAkses").modal('show');
     $("#group_id_akses").val(id);
+    $("#listMenu").jstree(true).refresh(false, true);
   }
 
   function get_menu() {

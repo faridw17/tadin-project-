@@ -23,16 +23,6 @@
           <input type="hidden" name="menu_id" id="menu_id">
           <div class="card-body">
             <div class="form-group row">
-              <label class="col-md-3 label-control">Modul</label>
-              <div class="col-md-3">
-                <select class="form-control" id="modul_id" name="modul_id">
-                  <?php foreach ($modul as $v) : ?>
-                    <option value="<?= $v->modul_id ?>"><?= $v->modul_nama ?></option>
-                  <?php endforeach ?>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
               <label class="col-md-3 label-control">Parent</label>
               <div class="col-md-5">
                 <select class="form-control" id="menu_parent_id" name="menu_parent_id">
@@ -69,8 +59,8 @@
               <label class="col-md-3 label-control">Status</label>
               <div class="col-md-3">
                 <select class="form-control" id="menu_status" name="menu_status">
-                  <option value="1">Aktif</option>
-                  <option value="0">Non Aktif</option>
+                  <option value="t">Aktif</option>
+                  <option value="f">Non Aktif</option>
                 </select>
               </div>
             </div>
@@ -102,20 +92,6 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-md-3 label-control">Modul</label>
-              <div class="col-md-9">
-                <select class="form-control" id="fil_modul">
-                  <?php foreach ($modul as $v) : ?>
-                    <option value="<?= $v->modul_id ?>"><?= $v->modul_nama ?></option>
-                  <?php endforeach ?>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
         <!--begin::DataTable-->
         <table class="table table-sm table-bordered table-hover table-checkable" id="tbl_vendor" style="margin-top: 13px !important; width: 100%;">
           <thead>
@@ -150,11 +126,11 @@
         processing: true,
         serverSide: true,
         ajax: {
-          url: '<?= base_url() ?>/admin/msmenu/get_data',
+          url: '<?= base_url() ?>ms_menu/get_data',
           type: 'POST',
-          data: function(d) {
-            d.fil_modul = $('#fil_modul').val();
-          }
+          // data: function(d) {
+          //   d.fil_modul = $('#fil_modul').val();
+          // }
         },
         columnDefs: [{
           targets: [0, -1],
@@ -206,7 +182,7 @@
           let data = formVendor.serialize()
 
           $.ajax({
-            url: '<?= base_url() ?>/admin/msmenu/save',
+            url: '<?= base_url() ?>ms_menu/save',
             data: data,
             type: 'post',
             dataType: 'json',
@@ -268,8 +244,7 @@
     const isi = JSON.parse(decodeURIComponent(data))
 
     $("#act").val('edit')
-    $("#modul_id").val(isi.modul_id)
-    getMenu(isi.modul_id, isi.menu_parent_id)
+    getMenu(isi.menu_parent_id)
     $("#menu_id").val(isi.menu_id)
     $("#menu_nama").val(isi.menu_nama)
     $("#menu_kode").val(isi.menu_kode)
@@ -293,7 +268,7 @@
     }).then(function(result) {
       if (result.value) {
         $.ajax({
-          url: '<?= base_url() ?>/admin/msmenu/hapus',
+          url: '<?= base_url() ?>ms_menu/hapus',
           type: 'post',
           dataType: 'json',
           data: {
@@ -323,14 +298,11 @@
     });
   }
 
-  function getMenu(modulId, idSelected = '') {
+  function getMenu(idSelected = '') {
     $("#menu_parent_id [value!=0]").remove();
     $.ajax({
-      url: '<?= base_url() ?>/admin/msmenu/get_parent',
+      url: '<?= base_url() ?>ms_menu/get_parent',
       dataType: 'json',
-      data: {
-        modul_id: modulId
-      },
       type: 'post',
       cache: false,
       success: res => {
@@ -359,17 +331,9 @@
 
     $("#btnAdd").click(function() {
       resetForm()
-      getMenu($("#modul_id").val())
+      getMenu()
       $("#rowForm").slideDown(500)
       $("#rowList").slideUp(500)
-    })
-
-    $("#modul_id").change(function() {
-      getMenu($(this).val())
-    })
-
-    $("#fil_modul").change(function() {
-      reload_tbl()
     })
   });
 </script>

@@ -1,26 +1,19 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\MsMenuModel;
-
-class Msmenu extends AdminController
+class Ms_menu extends MY_Controller
 {
 
-    protected $MsMenuModel;
     public function __construct()
     {
         parent::__construct();
-        $this->MsMenuModel = new MsMenuModel();
+        $this->load->model('m_ms_menu');
     }
 
     public function index()
     {
         $data['title'] = "Master Menu";
-        $data['modul'] = $this->MsMenuModel->get_modul();
-        return $this->admin_theme('admin/v_ms_menu', $data);
+        return $this->my_theme('v_ms_menu', $data);
     }
 
     public function get_data()
@@ -34,23 +27,17 @@ class Msmenu extends AdminController
             "parent.menu_nama as menu_parent_nama",
             "mm.menu_status",
             "mm.menu_parent_id",
-            "mm.modul_id",
             "coalesce(child.total,0) as total",
         );
 
-        $search = $this->request->getVar('search')['value'];
-        $fil_modul = $this->request->getVar('fil_modul');
+        $search = $this->input->post('search')['value'];
 
         $where = "";
-
-        if (!empty($fil_modul)) {
-            $where .= " AND mm.modul_id = $fil_modul ";
-        }
 
         if (isset($search) && $search != "") {
             $where .= " AND (";
             for ($i = 0; $i < count($columns); $i++) {
-                if ($i == 1 || $i == 2 || $i == 3 || $i == 4  || $i == 8) {
+                if ($i == 1 || $i == 2 || $i == 3 || $i == 4) {
                     $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
                 } elseif ($i == 5) {
                     $where .= " LOWER(parent.menu_nama) LIKE LOWER('%" . ($search) . "%') OR ";
@@ -60,29 +47,29 @@ class Msmenu extends AdminController
             $where .= ')';
         }
 
-        $iTotalRecords = intval($this->MsMenuModel->get_total($where));
-        $length = intval($this->request->getVar('length'));
+        $iTotalRecords = intval($this->m_ms_menu->get_total($where));
+        $length = intval($this->input->post('length'));
         $length = $length < 0 ? $iTotalRecords : $length;
-        $start  = intval($this->request->getVar('start'));
+        $start  = intval($this->input->post('start'));
         $draw      = intval($_REQUEST['draw']);
-        $sortCol0 = $this->request->getVar('order')[0];
+        $sortCol0 = $this->input->post('order')[0];
         $records = array();
         $records["data"] = array();
         $order = "";
         if (isset($start) && $length != '-1') {
-            $limit = "limit " . intval($start) . ", " . intval($length);
+            $limit = "limit " .  intval($length) . " offset " . intval($start);
         }
 
         if (isset($sortCol0)) {
             $order = "ORDER BY  ";
-            for ($i = 0; $i < count($this->request->getVar('order')); $i++) {
-                if ($this->request->getVar('columns')[intval($this->request->getVar('order')[$i]['column'])]['orderable'] == "true") {
-                    if (intval($this->request->getVar('order')[$i]['column']) != 5) {
-                        $order .= "" . $columns[intval($this->request->getVar('order')[$i]['column'])] . " " .
-                            ($this->request->getVar('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
+            for ($i = 0; $i < count($this->input->post('order')); $i++) {
+                if ($this->input->post('columns')[intval($this->input->post('order')[$i]['column'])]['orderable'] == "true") {
+                    if (intval($this->input->post('order')[$i]['column']) != 5) {
+                        $order .= "" . $columns[intval($this->input->post('order')[$i]['column'])] . " " .
+                            ($this->input->post('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
                     } else {
                         $order .= " parent.menu_nama " .
-                            ($this->request->getVar('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
+                            ($this->input->post('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
                     }
                 }
             }
@@ -92,11 +79,11 @@ class Msmenu extends AdminController
                 $order = "";
             }
         }
-        $data = $this->MsMenuModel->get_data($limit, $where, $order, $columns);
+        $data = $this->m_ms_menu->get_data($limit, $where, $order, $columns);
         $no   = 1 + $start;
         foreach ($data as $row) {
             $isi = rawurlencode(json_encode($row));
-            if ($row->menu_status == 1) {
+            if ($row->menu_status == 't') {
                 $status = '<span class="badge badge-success">Aktif</span>';
             } else {
                 $status = '<span class="badge badge-danger">Non Aktif</span>';
@@ -145,23 +132,22 @@ class Msmenu extends AdminController
 
     public function save()
     {
-        $act = $this->request->getVar('act');
+        $act = $this->input->post('act');
 
         $data = [
-            'menu_kode' => addslashes($this->request->getVar('menu_kode')),
-            'menu_nama' => addslashes($this->request->getVar('menu_nama')),
-            'menu_url' => addslashes($this->request->getVar('menu_url')),
-            'menu_ikon' => addslashes($this->request->getVar('menu_ikon')),
-            'menu_parent_id' => !empty($this->request->getVar('menu_parent_id')) ? $this->request->getVar('menu_parent_id') : 0,
-            'menu_status' => $this->request->getVar('menu_status'),
-            'modul_id' => $this->request->getVar('modul_id'),
+            'menu_kode' => addslashes($this->input->post('menu_kode')),
+            'menu_nama' => addslashes($this->input->post('menu_nama')),
+            'menu_url' => addslashes($this->input->post('menu_url')),
+            'menu_ikon' => addslashes($this->input->post('menu_ikon')),
+            'menu_parent_id' => !empty($this->input->post('menu_parent_id')) ? $this->input->post('menu_parent_id') : 0,
+            'menu_status' => $this->input->post('menu_status'),
         ];
 
         if ($act == 'add') {
-            $res = $this->MsMenuModel->insert($data);
+            $res = $this->m_ms_menu->insert($data);
         } else {
-            $id = $this->request->getVar('menu_id');
-            $res = $this->MsMenuModel->update($id, $data);
+            $id = $this->input->post('menu_id');
+            $res = $this->m_ms_menu->update($id, $data);
         }
 
         if ($res > 0) {
@@ -183,8 +169,8 @@ class Msmenu extends AdminController
 
     public function hapus()
     {
-        $id = $this->request->getVar('id');
-        $res = $this->MsMenuModel->delete($id);
+        $id = $this->input->post('id');
+        $res = $this->m_ms_menu->delete($id);
 
         $response = [
             'status' => false,
@@ -203,12 +189,7 @@ class Msmenu extends AdminController
 
     public function get_parent()
     {
-        $modul_id = $this->request->getVar('modul_id');
-        $res = $this->MsMenuModel
-            ->where('menu_status', 1)
-            ->where('modul_id', $modul_id)
-            ->orderBy('menu_kode', 'asc')
-            ->findAll();
+        $res = $this->m_ms_menu->get_parent();
 
         echo json_encode($res);
     }
