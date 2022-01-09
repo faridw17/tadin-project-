@@ -1,24 +1,18 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\MsDeviceModel;
-
-class Msdevice extends AdminController
+class Ms_device extends MY_Controller
 {
-    protected $MsDeviceModel;
     public function __construct()
     {
         parent::__construct();
-        $this->MsDeviceModel = new MsDeviceModel();
+        $this->load->model('m_ms_device');
     }
 
     public function index()
     {
         $data['title'] = "Master Device";
-        return $this->admin_theme('admin/v_ms_device', $data);
+        return $this->my_theme('v_ms_device', $data);
     }
 
     public function get_data()
@@ -30,35 +24,37 @@ class Msdevice extends AdminController
             'device_nama',
             'device_status',
         );
-        $search = $this->request->getVar('search')['value'];
+        $search = $this->input->post('search')['value'];
         $where = "";
         if (isset($search) && $search != "") {
             $where = "AND (";
             for ($i = 0; $i < count($columns); $i++) {
-                $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
+                if ($i == 2 || $i == 3) {
+                    $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
+                }
             }
             $where = substr_replace($where, "", -3);
             $where .= ')';
         }
-        $iTotalRecords = intval($this->MsDeviceModel->get_total($where));
-        $length = intval($this->request->getVar('length'));
+        $iTotalRecords = intval($this->m_ms_device->get_total($where));
+        $length = intval($this->input->post('length'));
         $length = $length < 0 ? $iTotalRecords : $length;
-        $start  = intval($this->request->getVar('start'));
+        $start  = intval($this->input->post('start'));
         $draw      = intval($_REQUEST['draw']);
-        $sortCol0 = $this->request->getVar('order')[0];
+        $sortCol0 = $this->input->post('order')[0];
         $records = array();
         $records["data"] = array();
         $order = "";
         if (isset($start) && $length != '-1') {
-            $limit = "limit " . intval($start) . ", " . intval($length);
+            $limit = "limit " .  intval($length) . " offset " . intval($start);
         }
 
         if (isset($sortCol0)) {
             $order = "ORDER BY  ";
-            for ($i = 0; $i < count($this->request->getVar('order')); $i++) {
-                if ($this->request->getVar('columns')[intval($this->request->getVar('order')[$i]['column'])]['orderable'] == "true") {
-                    $order .= "" . $columns[intval($this->request->getVar('order')[$i]['column'])] . " " .
-                        ($this->request->getVar('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
+            for ($i = 0; $i < count($this->input->post('order')); $i++) {
+                if ($this->input->post('columns')[intval($this->input->post('order')[$i]['column'])]['orderable'] == "true") {
+                    $order .= "" . $columns[intval($this->input->post('order')[$i]['column'])] . " " .
+                        ($this->input->post('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
                 }
             }
 
@@ -67,11 +63,11 @@ class Msdevice extends AdminController
                 $order = "";
             }
         }
-        $data = $this->MsDeviceModel->get_data($limit, $where, $order, $columns);
+        $data = $this->m_ms_device->get_data($limit, $where, $order, $columns);
         $no   = 1 + $start;
         foreach ($data as $row) {
             $isi = rawurlencode(json_encode($row));
-            if ($row->device_status == 1) {
+            if ($row->device_status == 't') {
                 $status = '<span class="badge badge-success">Aktif</span>';
             } else {
                 $status = '<span class="badge badge-danger">Non Aktif</span>';
@@ -103,19 +99,19 @@ class Msdevice extends AdminController
 
     public function save()
     {
-        $act = $this->request->getVar('act');
+        $act = $this->input->post('act');
 
         $data = [
-            'device_kode' => addslashes($this->request->getVar('device_kode')),
-            'device_nama' => addslashes($this->request->getVar('device_nama')),
-            'device_status' => $this->request->getVar('device_status'),
+            'device_kode' => addslashes($this->input->post('device_kode')),
+            'device_nama' => addslashes($this->input->post('device_nama')),
+            'device_status' => $this->input->post('device_status'),
         ];
 
         if ($act == 'add') {
-            $res = $this->MsDeviceModel->insert($data);
+            $res = $this->m_ms_device->insert($data);
         } else {
-            $id = $this->request->getVar('device_id');
-            $res = $this->MsDeviceModel->update($id, $data);
+            $id = $this->input->post('device_id');
+            $res = $this->m_ms_device->update($id, $data);
         }
 
         if ($res > 0) {
@@ -137,8 +133,8 @@ class Msdevice extends AdminController
 
     public function hapus()
     {
-        $id = $this->request->getVar('id');
-        $res = $this->MsDeviceModel->delete($id);
+        $id = $this->input->post('id');
+        $res = $this->m_ms_device->delete($id);
 
         $response = [
             'status' => false,

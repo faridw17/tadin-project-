@@ -1,56 +1,20 @@
 <?php
 
-class MsDeviceModel extends CI_Model
+class M_ms_device extends CI_Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'ms_device';
-    protected $primaryKey       = 'device_id';
-    protected $useAutoIncrement = true;
-    protected $insertID         = 0;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        'device_id',
-        'device_kode',
-        'device_nama',
-        'device_status',
-    ];
-
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
-
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    protected $table    = 'mesin.ms_device';
+    protected $id       = 'device_id';
 
     public function get_total($where)
     {
         $sql = "SELECT
                     count(*) as total
                 from
-                    ms_device md
+                    mesin.ms_device md
                 where
                     0 = 0
                     $where";
-        return $this->db->query($sql)->getRow()->total;
+        return $this->db->query($sql)->row()->total;
     }
 
     public function get_data($limit, $where, $order, $columns)
@@ -59,11 +23,46 @@ class MsDeviceModel extends CI_Model
         $sql = "SELECT
                     $slc
                 from
-                    ms_device md
+                    mesin.ms_device md
                 where
                     0 = 0
                     $where
                 $order $limit";
-        return $this->db->query($sql)->getResult();
+        return $this->db->query($sql)->result();
+    }
+
+    public function insert($data)
+    {
+        $this->db->insert($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function update($id, $data)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->update($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function delete($id)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->delete($this->table);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
     }
 }

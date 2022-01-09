@@ -36,8 +36,8 @@
               <label class="col-md-3 label-control">Status</label>
               <div class="col-md-3">
                 <select class="form-control" id="device_status" name="device_status">
-                  <option value="1">Aktif</option>
-                  <option value="0">Non Aktif</option>
+                  <option value="t">Aktif</option>
+                  <option value="f">Non Aktif</option>
                 </select>
               </div>
             </div>
@@ -101,7 +101,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-          url: '<?= base_url() ?>/admin/msdevice/get_data',
+          url: '<?= base_url() ?>ms_device/get_data',
           type: 'POST',
         },
         columnDefs: [{
@@ -155,7 +155,7 @@
           let data = formVendor.serialize()
 
           $.ajax({
-            url: '<?= base_url() ?>/admin/msdevice/save',
+            url: '<?= base_url() ?>ms_device/save',
             data: data,
             type: 'post',
             dataType: 'json',
@@ -237,7 +237,7 @@
     }).then(function(result) {
       if (result.value) {
         $.ajax({
-          url: '<?= base_url() ?>/admin/msdevice/hapus',
+          url: '<?= base_url() ?>ms_device/hapus',
           type: 'post',
           dataType: 'json',
           data: {
