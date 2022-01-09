@@ -1,33 +1,18 @@
 <?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers;
-
-use App\Controllers\BaseController;
-use App\Models\APIModel;
-
-class APIController extends BaseController
+class Api extends CI_Controller
 {
-    private $APIModel;
-
     public function __construct()
     {
-        $this->APIModel = new APIModel();
-    }
-
-    public function index()
-    {
-        echo 'ok';
+        $this->load->model('m_api');
     }
 
     public function insert_mesin()
     {
-        // if ($this->request->getVar('token') != '12345678') {
-        //     return $this->response->setStatusCode(403);
-        // }
-
-        $id = $this->request->getVar('id');
-        $jam = $this->request->getVar('jam');
-        $kondisi = $this->request->getVar('kondisi');
+        $id = $this->input->post('id');
+        $jam = $this->input->post('jam');
+        $kondisi = $this->input->post('kondisi');
 
         $data_mesin = [];
         $data_status = [];
@@ -47,18 +32,18 @@ class APIController extends BaseController
         }
 
         if (count($data_mesin) > 0) {
-            $this->APIModel->insert_mesin_data($data_mesin);
+            $this->m_api->insert_mesin_data($data_mesin);
         }
 
         if (count($data_status) > 0) {
-            $this->APIModel->update_status_mesin($data_status);
+            $this->m_api->update_status_mesin($data_status);
         }
 
-        return $this->response->setStatusCode(201, 'Created');
+        return $this->output->set_status_header(201);
     }
 
     public function insert_test()
     {
-        $this->APIModel->insert_test(['data' => json_encode($this->request->getVar())]);
+        $this->m_api->insert_test(['data' => json_encode($this->input->post())]);
     }
 }
