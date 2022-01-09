@@ -1,12 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\MesinModel;
-
-class Mesin extends AdminController
+class Mesin extends MY_Controller
 {
     private $nama_pt;
     public function __construct()
@@ -17,12 +12,12 @@ class Mesin extends AdminController
                 $this->nama_pt = $v->setting_value;
             }
         }
-        $this->MesinModel = new MesinModel();
+        $this->load->model('m_mesin');
     }
 
     public function get_grafik()
     {
-        $device_id = $this->request->getVar('device_id');
+        $device_id = $this->input->get('device_id');
 
         $limit = 10;
 
@@ -49,7 +44,7 @@ class Mesin extends AdminController
             }
         }
 
-        $data = $this->MesinModel->get_data_device($device_id);
+        $data = $this->m_mesin->get_data_device($device_id);
 
         $res['xaxis'] = $label_x;
         $res['series'] = [];
@@ -59,7 +54,7 @@ class Mesin extends AdminController
             'data' => $sampelBanyakData,
         ];
 
-        $get_data = $this->MesinModel->get_line_data($data->device_id, $tgl_pertama);
+        $get_data = $this->m_mesin->get_line_data($data->device_id, $tgl_pertama);
 
         foreach ($get_data as $k => $v) {
             $res['series'][0]['data'][$sampelBanyakTanggal[$v->tanggal]] = floatval($v->jam);
@@ -72,23 +67,23 @@ class Mesin extends AdminController
     public function detail($device_id)
     {
         $data['device_id'] = $device_id;
-        $data['title'] = $this->MesinModel->get_nama($device_id);
+        $data['title'] = $this->m_mesin->get_nama($device_id);
         $data['nama_pt'] = $this->nama_pt;
-        $data['total_harian'] = $this->MesinModel->get_total_jam($device_id, 'harian');
-        $data['total_bulanan'] = $this->MesinModel->get_total_jam($device_id, 'bulanan');
-        $data['total_tahunan'] = $this->MesinModel->get_total_jam($device_id, 'tahunan');
-        $data['total_all'] = $this->MesinModel->get_total_jam($device_id);
-        $data['status'] = $this->MesinModel->get_status($device_id);
-        return $this->admin_theme('admin/v_mesin', $data);
+        $data['total_harian'] = $this->m_mesin->get_total_jam($device_id, 'harian');
+        $data['total_bulanan'] = $this->m_mesin->get_total_jam($device_id, 'bulanan');
+        $data['total_tahunan'] = $this->m_mesin->get_total_jam($device_id, 'tahunan');
+        $data['total_all'] = $this->m_mesin->get_total_jam($device_id);
+        $data['status'] = $this->m_mesin->get_status($device_id);
+        return $this->my_theme('v_mesin', $data);
     }
 
     public function realtime_detail($device_id)
     {
-        $data['total_harian'] = $this->MesinModel->get_total_jam($device_id, 'harian');
-        $data['total_bulanan'] = $this->MesinModel->get_total_jam($device_id, 'bulanan');
-        $data['total_tahunan'] = $this->MesinModel->get_total_jam($device_id, 'tahunan');
-        $data['total_all'] = $this->MesinModel->get_total_jam($device_id);
-        $data['status'] = $this->MesinModel->get_status($device_id);
+        $data['total_harian'] = $this->m_mesin->get_total_jam($device_id, 'harian');
+        $data['total_bulanan'] = $this->m_mesin->get_total_jam($device_id, 'bulanan');
+        $data['total_tahunan'] = $this->m_mesin->get_total_jam($device_id, 'tahunan');
+        $data['total_all'] = $this->m_mesin->get_total_jam($device_id);
+        $data['status'] = $this->m_mesin->get_status($device_id);
         echo json_encode($data);
     }
 }

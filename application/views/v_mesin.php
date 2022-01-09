@@ -1,8 +1,8 @@
-<script src="<?= base_url() ?>/node_modules/highcharts/highcharts.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/series-label.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/exporting.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/export-data.js"></script>
-<script src="<?= base_url() ?>/node_modules/highcharts/modules/accessibility.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/highcharts.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/series-label.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/exporting.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/export-data.js"></script>
+<script src="<?= base_url() ?>node_modules/highcharts/modules/accessibility.js"></script>
 <h1 class="mt-4"><?= $title ?></h1>
 <input type="hidden" name="device_id" id="device_id" value="<?= $device_id ?>">
 <div class="row">
@@ -167,7 +167,7 @@
 
   function getGrafikData() {
     $.ajax({
-      url: '<?= base_url() ?>/admin/mesin/get_grafik',
+      url: '<?= base_url() ?>mesin/get_grafik',
       dataType: 'json',
       data: {
         device_id: $("#device_id").val()
@@ -218,7 +218,7 @@
   function getStatusMesin() {
     const device_id = $("#device_id").val()
     $.ajax({
-      url: "<?= base_url() ?>/admin/mesin/realtime_detail/" + device_id,
+      url: "<?= base_url() ?>mesin/realtime_detail/" + device_id,
       dataType: 'json',
       cache: false,
       success: res => {

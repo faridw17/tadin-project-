@@ -1,12 +1,12 @@
 <?php
 
-class MesinModel extends CI_Model
+class M_mesin extends CI_Model
 {
     public function get_data_device($device_id)
     {
-        $sql = "SELECT * from ms_device where device_id = $device_id";
+        $sql = "SELECT * from mesin.ms_device where device_id = $device_id";
 
-        $res = $this->db->query($sql)->getRow();
+        $res = $this->db->query($sql)->row();
         return $res;
     }
 
@@ -20,7 +20,7 @@ class MesinModel extends CI_Model
                         dm.tanggal,
                         sum(dm.jam) jam
                     from
-                        data_mesin dm
+                        mesin.data_mesin dm
                     where
                         dm.device_id = $device_id
                         and dm.tanggal >= '$tgl_pertama'
@@ -30,7 +30,7 @@ class MesinModel extends CI_Model
                         dm.tanggal desc) label
                 order by
                     tanggal asc";
-        $res = $this->db->query($sql)->getResult();
+        $res = $this->db->query($sql)->result();
         return $res;
     }
 
@@ -39,31 +39,31 @@ class MesinModel extends CI_Model
         $where = " AND device_id = $device_id ";
 
         if ($jenis == 'harian') {
-            $where .= " AND tanggal = '" . date('Y-m-d') . "' ";
+            $where .= " AND tanggal::text = '" . date('Y-m-d') . "' ";
         } else if ($jenis == 'bulanan') {
-            $where .= " AND tanggal like '" . date('Y-m') . "%' ";
+            $where .= " AND tanggal::text like '" . date('Y-m') . "%' ";
         } else if ($jenis == 'tahunan') {
-            $where .= " AND tanggal like '" . date('Y') . "%' ";
+            $where .= " AND tanggal::text like '" . date('Y') . "%' ";
         }
 
         $sql = "SELECT
                     sum(jam) as total
                 from
-                    data_mesin dm
+                    mesin.data_mesin dm
                 where
                     0 = 0
                     $where";
 
-        return number_format($this->db->query($sql)->getRow()->total, 2, ',', '.');
+        return number_format($this->db->query($sql)->row()->total, 2, ',', '.');
     }
 
     public function get_status($device_id)
     {
-        return $this->db->table('ms_device')->getWhere(['device_id' => $device_id])->getRow()->device_kondisi;
+        return $this->db->get_where('mesin.ms_device', ['device_id' => $device_id])->row()->device_kondisi;
     }
 
     public function get_nama($device_id)
     {
-        return $this->db->table('ms_device')->getWhere(['device_id' => $device_id])->getRow()->device_nama;
+        return $this->db->get_where('mesin.ms_device', ['device_id' => $device_id])->row()->device_nama;
     }
 }
