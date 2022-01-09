@@ -1,5 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: POST");
 
 class Api extends CI_Controller
 {
