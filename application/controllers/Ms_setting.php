@@ -1,24 +1,18 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-namespace App\Controllers\Admin;
-
-use App\Controllers\AdminController;
-use App\Models\Admin\MsSettingModel;
-
-class Ms_setting extends AdminController
+class Ms_setting extends MY_Controller
 {
-    protected $MsSettingModel;
     public function __construct()
     {
         parent::__construct();
-        $this->MsSettingModel = new MsSettingModel();
+        $this->load->model('m_ms_setting');
     }
 
     public function index()
     {
         $data['title'] = "Master Setting";
-        return $this->admin_theme('admin/v_ms_setting', $data);
+        return $this->my_theme('v_ms_setting', $data);
     }
 
     public function get_data()
@@ -28,37 +22,39 @@ class Ms_setting extends AdminController
             'setting_nama',
             'setting_value',
             'setting_ket',
-            'setting_status',
+            // 'setting_status',
         );
-        $search = $this->request->getVar('search')['value'];
+        $search = $this->input->post('search')['value'];
         $where = "";
         if (isset($search) && $search != "") {
             $where = "AND (";
             for ($i = 0; $i < count($columns); $i++) {
-                $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
+                if ($i == 1 || $i == 2) {
+                    $where .= " LOWER(" . $columns[$i] . ") LIKE LOWER('%" . ($search) . "%') OR ";
+                }
             }
             $where = substr_replace($where, "", -3);
             $where .= ')';
         }
-        $iTotalRecords = intval($this->MsSettingModel->get_total($where));
-        $length = intval($this->request->getVar('length'));
+        $iTotalRecords = intval($this->m_ms_setting->get_total($where));
+        $length = intval($this->input->post('length'));
         $length = $length < 0 ? $iTotalRecords : $length;
-        $start  = intval($this->request->getVar('start'));
+        $start  = intval($this->input->post('start'));
         $draw      = intval($_REQUEST['draw']);
-        $sortCol0 = $this->request->getVar('order')[0];
+        $sortCol0 = $this->input->post('order')[0];
         $records = array();
         $records["data"] = array();
         $order = "";
         if (isset($start) && $length != '-1') {
-            $limit = "limit " . intval($start) . ", " . intval($length);
+            $limit = "limit " . intval($length) . " offset " . intval($start);
         }
 
         if (isset($sortCol0)) {
             $order = "ORDER BY  ";
-            for ($i = 0; $i < count($this->request->getVar('order')); $i++) {
-                if ($this->request->getVar('columns')[intval($this->request->getVar('order')[$i]['column'])]['orderable'] == "true") {
-                    $order .= "" . $columns[intval($this->request->getVar('order')[$i]['column'])] . " " .
-                        ($this->request->getVar('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
+            for ($i = 0; $i < count($this->input->post('order')); $i++) {
+                if ($this->input->post('columns')[intval($this->input->post('order')[$i]['column'])]['orderable'] == "true") {
+                    $order .= "" . $columns[intval($this->input->post('order')[$i]['column'])] . " " .
+                        ($this->input->post('order')[$i]['dir'] === 'asc' ? 'asc' : 'desc') . ", ";
                 }
             }
 
@@ -67,11 +63,11 @@ class Ms_setting extends AdminController
                 $order = "";
             }
         }
-        $data = $this->MsSettingModel->get_data($limit, $where, $order, $columns);
+        $data = $this->m_ms_setting->get_data($limit, $where, $order, $columns);
         $no   = 1 + $start;
         foreach ($data as $row) {
             $isi = rawurlencode(json_encode($row));
-            // if ($row->setting_status == 1) {
+            // if ($row->setting_status == 't') {
             //     $status = '<span class="badge badge-success">Aktif</span>';
             // } else {
             //     $status = '<span class="badge badge-danger">Non Aktif</span>';
@@ -86,6 +82,7 @@ class Ms_setting extends AdminController
                 $row->setting_nama,
                 $row->setting_value,
                 rawurldecode($row->setting_ket),
+                // $status,
                 $action,
             );
         }
@@ -99,20 +96,20 @@ class Ms_setting extends AdminController
 
     public function save()
     {
-        $act = $this->request->getVar('act');
+        $act = $this->input->post('act');
 
         $data = [
-            'setting_nama' => addslashes($this->request->getVar('setting_nama')),
-            'setting_value' => addslashes($this->request->getVar('setting_value')),
-            'setting_ket' => rawurlencode($this->request->getVar('setting_ket')),
-            'setting_status' => $this->request->getVar('setting_status'),
+            'setting_nama' => addslashes($this->input->post('setting_nama')),
+            'setting_value' => addslashes($this->input->post('setting_value')),
+            'setting_ket' => rawurlencode($this->input->post('setting_ket')),
+            // 'setting_status' => $this->input->post('setting_status'),
         ];
 
         if ($act == 'add') {
-            $res = $this->MsSettingModel->insert($data);
+            $res = $this->m_ms_setting->insert($data);
         } else {
-            $id = $this->request->getVar('setting_id');
-            $res = $this->MsSettingModel->update($id, $data);
+            $id = $this->input->post('setting_id');
+            $res = $this->m_ms_setting->update($id, $data);
         }
 
         if ($res > 0) {
@@ -134,8 +131,8 @@ class Ms_setting extends AdminController
 
     public function hapus()
     {
-        $id = $this->request->getVar('id');
-        $res = $this->MsSettingModel->delete($id);
+        $id = $this->input->post('id');
+        $res = $this->m_ms_setting->delete($id);
 
         $response = [
             'status' => false,

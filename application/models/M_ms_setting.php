@@ -1,57 +1,20 @@
 <?php
 
-class MsSettingModel extends CI_Model
+class M_ms_setting extends CI_Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'setting';
-    protected $primaryKey       = 'setting_id';
-    protected $useAutoIncrement = true;
-    protected $insertID         = 0;
-    protected $returnType       = 'object';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        'setting_id',
-        'setting_nama',
-        'setting_value',
-        'setting_ket',
-        'setting_status',
-    ];
-
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
-
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    private $table    = 'admin.setting';
+    private $id       = 'setting_id';
 
     public function get_total($where)
     {
         $sql = "SELECT
                     count(*) as total
                 from
-                    setting s
+                    admin.setting s
                 where
                     0 = 0
                     $where";
-        return $this->db->query($sql)->getRow()->total;
+        return $this->db->query($sql)->row()->total;
     }
 
     public function get_data($limit, $where, $order, $columns)
@@ -60,11 +23,46 @@ class MsSettingModel extends CI_Model
         $sql = "SELECT
                     $slc
                 from
-                    setting s
+                    admin.setting s
                 where
                     0 = 0
                     $where
                 $order $limit";
-        return $this->db->query($sql)->getResult();
+        return $this->db->query($sql)->result();
+    }
+
+    public function insert($data)
+    {
+        $this->db->insert($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function update($id, $data)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->update($this->table, $data);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
+    }
+
+    public function delete($id)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->delete($this->table);
+        if ($this->db->affected_rows() > -1) {
+            $res = true;
+        } else {
+            $res =  false;
+        }
+        return $res;
     }
 }

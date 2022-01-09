@@ -38,15 +38,15 @@
                 <textarea class="form-control" placeholder="Keterangan" id="setting_ket" name="setting_ket"></textarea>
               </div>
             </div>
-            <div class="form-group row" style="display: none;">
+            <!-- <div class="form-group row" style="display: none;">
               <label class="col-md-3 label-control">Status</label>
               <div class="col-md-3">
                 <select class="form-control" id="setting_status" name="setting_status">
-                  <option value="1">Aktif</option>
-                  <option value="0">Non Aktif</option>
+                  <option value="t">Aktif</option>
+                  <option value="f">Non Aktif</option>
                 </select>
               </div>
-            </div>
+            </div> -->
           </div>
         </form>
         <!--end::Form-->
@@ -107,7 +107,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-          url: '<?= base_url() ?>/admin/ms_setting/get_data',
+          url: '<?= base_url() ?>ms_setting/get_data',
           type: 'POST',
         },
         columnDefs: [{
@@ -159,7 +159,7 @@
           let data = formVendor.serialize()
 
           $.ajax({
-            url: '<?= base_url() ?>/admin/ms_setting/save',
+            url: '<?= base_url() ?>ms_setting/save',
             data: data,
             type: 'post',
             dataType: 'json',
@@ -225,7 +225,7 @@
     $("#setting_nama").val(isi.setting_nama)
     $("#setting_value").val(isi.setting_value)
     $("#setting_ket").val(decodeURIComponent(isi.setting_ket))
-    $("#setting_status").val(isi.setting_status)
+    // $("#setting_status").val(isi.setting_status)
     $("#rowForm").slideDown(500)
     $("#rowList").slideUp(500)
 
@@ -242,7 +242,7 @@
     }).then(function(result) {
       if (result.value) {
         $.ajax({
-          url: '<?= base_url() ?>/admin/ms_setting/hapus',
+          url: '<?= base_url() ?>ms_setting/hapus',
           type: 'post',
           dataType: 'json',
           data: {
