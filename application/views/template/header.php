@@ -16,6 +16,9 @@
     <link href="<?= base_url() ?>node_modules/jstree/dist/themes/default/style.min.css" rel="stylesheet" />
     <link href="<?= base_url() ?>node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="<?= base_url() ?>node_modules/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" />
+    <!-- <link href="<?= base_url() ?>node_modules/jquery-ui-dist/jquery-ui.css" rel="stylesheet" /> -->
+    <link href="<?= base_url() ?>node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" rel="stylesheet" />
+    <link href="<?= base_url() ?>node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css" rel="stylesheet" />
 
     <style>
         .has-error {
@@ -39,6 +42,8 @@
     <script src="<?= base_url() ?>node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="<?= base_url() ?>node_modules/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
     <script src="<?= base_url() ?>node_modules/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+    <!-- <script src="<?= base_url() ?>node_modules/jquery-ui-dist/jquery-ui.js"></script> -->
+    <script src="<?= base_url() ?>node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
 </head>
 
 <body id="page-top">

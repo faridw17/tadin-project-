@@ -16,10 +16,35 @@
     <div class="card">
       <div class="card-header text-white bg-dark mb-3">Monitoring nyala Mesin (jam)</div>
       <div class="card-body">
+        <div class="row">
+          <div class="col-md-3" style="display: none;">
+            <div class="form-group">
+              <label>Periodik</label>
+              <select class="form-control" id="jns_periodik">
+                <option value="1">Harian</option>
+                <option value="2">Bulanan</option>
+                <option value="3">Tahunan</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-xl-6 col-md-9">
+            <div class="row">
+              <div class="col-sm-12">
+                <label>Waktu</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="waktu_mulai" readonly value="<?= date("d-m-Y") ?>">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">s/d</div>
+                  </div>
+                  <input type="text" class="form-control" id="waktu_selesai" readonly value="<?= date("d-m-Y") ?>">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="chartLine"></div>
       </div>
     </div>
-    <div id="chartLine"></div>
   </div>
 </div>
 <script>
@@ -105,7 +130,7 @@
                 break;
             }
             list +=
-              `<div class="col-xl-3 col-md-6 mb-4">
+              `<div class="col-xl-3 col-sm-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                   <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -131,6 +156,12 @@
     $.ajax({
       url: '<?= base_url() ?>dashboard/get_grafik',
       dataType: 'json',
+      data: {
+        'waktu_mulai': $("#waktu_mulai").val(),
+        'waktu_selesai': $("#waktu_selesai").val(),
+        'jns_periodik': $("#jns_periodik").val(),
+      },
+      type: 'post',
       success: res => {
         chartLine.xAxis[0].setCategories(res.xaxis);
 
@@ -168,16 +199,79 @@
           }
         }
 
-
         chartLine.redraw()
       }
     })
   }
 
   $(document).ready(function() {
+    getDashboardMesin()
+    getGrafikData()
     setInterval(() => {
       getDashboardMesin()
       getGrafikData()
-    }, 5000);
+    }, 10000);
+
+    $("#jns_periodik").change(function() {
+      let nilaiWaktu = '<?= date('d-m-Y') ?>'
+      $("#waktu_mulai").datepicker('destroy')
+      $("#waktu_selesai").datepicker('destroy')
+
+      if ($(this).val() == 2) {
+        nilaiWaktu = '<?= date('m-Y') ?>'
+        $("#waktu_mulai").datepicker({
+          format: 'mm-yyyy',
+          viewMode: 'months',
+          minViewMode: 'months',
+          autoclose: true,
+        })
+        $("#waktu_selesai").datepicker({
+          format: 'mm-yyyy',
+          viewMode: 'months',
+          minViewMode: 'months',
+          autoclose: true,
+        })
+      } else if ($(this).val() == 3) {
+        nilaiWaktu = '<?= date('Y') ?>'
+        $("#waktu_mulai").datepicker({
+          format: 'yyyy',
+          minViewMode: 'years',
+          viewMode: 'years',
+          autoclose: true,
+        })
+        $("#waktu_selesai").datepicker({
+          minViewMode: 'years',
+          viewMode: 'years',
+          format: 'yyyy',
+          autoclose: true,
+        })
+      } else {
+        $("#waktu_mulai").datepicker({
+          autoclose: true,
+          format: 'dd-mm-yyyy',
+        })
+        $("#waktu_selesai").datepicker({
+          autoclose: true,
+          format: 'dd-mm-yyyy',
+        })
+      }
+
+      $("#waktu_mulai").val(nilaiWaktu)
+      $("#waktu_selesai").val(nilaiWaktu)
+    })
+
+    $("#waktu_mulai").datepicker({
+      autoclose: true,
+      format: 'dd-mm-yyyy',
+    }).change(function() {
+      getGrafikData();
+    })
+
+    $("#waktu_selesai").datepicker({
+      autoclose: true,
+      format: 'dd-mm-yyyy',
+    }).change(function() {
+      getGrafikData();
+    })
   })
 </script>

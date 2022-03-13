@@ -1,7 +1,10 @@
 {
   "dependencies": {
+    "bootstrap-datepicker": "^1.9.0",
     "datatables.net-responsive-bs4": "^2.2.9",
     "highcharts": "^9.3.2",
+    "jquery-ui": "^1.13.1",
+    "jquery-ui-dist": "^1.13.1",
     "jquery-validation": "^1.19.3",
     "jstree": "^3.3.12",
     "startbootstrap-sb-admin-2": "^4.1.4",

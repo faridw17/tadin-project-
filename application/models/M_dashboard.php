@@ -43,21 +43,22 @@ class M_dashboard extends CI_Model
         return $res;
     }
 
-    public function get_line_data($device_id, $tgl_pertama)
+    public function get_line_data($device_id, $tgl_pertama, $tgl_selesai)
     {
         $tgl_pertama = date("Y-m-d", strtotime($tgl_pertama));
+        $tgl_selesai = date("Y-m-d", strtotime($tgl_selesai));
         $sql = "SELECT
                     *
                 from
                     (
                     select
-                        date_format(dm.tanggal, '%d-%m-%Y') tanggal,
+                        to_char(dm.tanggal, 'dd-mm-yyyy') tanggal,
                         sum(dm.jam) jam
                     from
                         mesin.data_mesin dm
                     where
                         dm.device_id = $device_id
-                        and dm.tanggal >= '$tgl_pertama'
+                        and date(dm.tanggal) between '$tgl_pertama' and '$tgl_selesai'
                     group by
                         dm.tanggal
                     order by
@@ -66,10 +67,5 @@ class M_dashboard extends CI_Model
                     label.tanggal asc";
         $res = $this->db->query($sql)->result();
         return $res;
-    }
-
-    public function get_bar_data($where = "")
-    {
-        # code...
     }
 }

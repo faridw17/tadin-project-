@@ -31,7 +31,19 @@ class Dashboard extends MY_Controller
 
     public function get_grafik()
     {
-        $limit = $this->input->post('limit');
+        $waktu_mulai = $this->input->post('waktu_mulai');
+        $waktu_selesai = $this->input->post('waktu_selesai');
+        $jns_periodik = $this->input->post('jns_periodik');
+
+        if ($jns_periodik == 1) {
+            $tgl_mulai = strtotime($waktu_mulai);
+            $tgl_selesai = strtotime($waktu_selesai);
+            $limit = ($tgl_selesai - $tgl_mulai) / (24 * 60 * 60) + 1;
+            // } else if ($jns_periodik == 2) {
+            //     $pembeda = 24 * 60 * 60 * 30;
+            // } else if ($jns_periodik == 3) {
+            //     $pembeda = 24 * 60 * 60 * 30 * 12;
+        }
 
         $limit = !empty($limit) ? $limit : 10;
 
@@ -46,15 +58,11 @@ class Dashboard extends MY_Controller
 
         $tanggal = '';
         $label_x = [];
-        $tgl_pertama = date("d-m-Y");
 
         for ($i = 0; $i < $limit; $i++) {
-            $tanggal = date('d-m-Y', strtotime(date('Y-m-d')) - ($limit - $i - 1) * 60 * 60 * 24);
+            $tanggal = date('d-m-Y', strtotime($waktu_selesai) - ($limit - $i - 1) * 60 * 60 * 24);
             $sampelBanyakTanggal[$tanggal] = $i;
             $label_x[] = $tanggal;
-            if ($i == 0) {
-                $tgl_pertama = $tanggal;
-            }
         }
 
         $res['xaxis'] = $label_x;
@@ -69,7 +77,7 @@ class Dashboard extends MY_Controller
                 'data' => $sampelBanyakData,
             ];
 
-            $get_data = $this->m_dashboard->get_line_data($value->device_id, $tgl_pertama);
+            $get_data = $this->m_dashboard->get_line_data($value->device_id, $waktu_mulai, $waktu_selesai);
 
             foreach ($get_data as $k => $v) {
                 $res['series'][$key]['data'][$sampelBanyakTanggal[$v->tanggal]] = floatval($v->jam);
